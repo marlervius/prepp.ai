@@ -58,8 +58,9 @@ services:
         value: "4000"
 
   # ── Frontend (Next.js) ─────────────────────────────
-  # User interface for generating teaching briefs
-  # After deploy: Set NEXT_PUBLIC_API_URL to backend URL
+  # User interface for generating teaching briefs.
+  # IMPORTANT: NEXT_PUBLIC_API_URL must be set before first deploy
+  # because Next.js bakes public env vars into the build.
   - type: web
     name: prepp-ai-frontend
     runtime: docker
@@ -68,8 +69,8 @@ services:
     region: frankfurt
     plan: free
     envVars:
-      # Backend URL — set manually after first deploy:
-      # https://prepp-ai-backend.onrender.com
+      # Set this to the backend Render URL BEFORE deploying:
+      # e.g.  https://prepp-ai-backend.onrender.com
       - key: NEXT_PUBLIC_API_URL
         sync: false
 

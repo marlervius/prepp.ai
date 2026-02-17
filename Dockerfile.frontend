@@ -1,23 +1,47 @@
-# Frontend Dockerfile for Render
-FROM node:18-alpine
+# ─────────────────────────────────────────────────────────
+# Prepp.ai — Frontend Docker Image (used by Render Blueprint)
+# Context: repo root  |  dockerfilePath: ./Dockerfile.frontend
+# ─────────────────────────────────────────────────────────
 
-# Set working directory
+# ── Stage 1: Install dependencies ──────────────────────
+FROM node:20-alpine AS deps
 WORKDIR /app
+COPY ./prepp-ai-app/package.json ./prepp-ai-app/package-lock.json ./
+RUN npm ci
 
-# Copy package files
-COPY ./prepp-ai-app/package*.json ./
+# ── Stage 2: Build Next.js app ──────────────────────────
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY ./prepp-ai-app .
 
-# Install dependencies
-RUN npm ci --only=production
+# NEXT_PUBLIC_API_URL must be known at build time for Next.js
+# Set this as a build arg in Render: NEXT_PUBLIC_API_URL=https://prepp-ai-backend.onrender.com
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Copy application code
-COPY ./prepp-ai-app/ .
-
-# Build application
 RUN npm run build
 
-# Expose port
+# ── Stage 3: Minimal runtime image ──────────────────────
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
+
+# Standalone output (next.config.ts → output: "standalone")
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 EXPOSE 3000
 
-# Start application
-CMD ["npm", "start"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD wget -qO- http://localhost:3000/ || exit 1
+
+CMD ["node", "server.js"]

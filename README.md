@@ -21,7 +21,7 @@ En SaaS-plattform som gir lærere i norsk skole kvalitetssikret, kildebelagt fag
 - **FastAPI** (Python) for API
 - **Supabase** (PostgreSQL + pgvector) for database og autentisering
 - **Redis** for caching
-- **Claude/Anthropic** for AI-generering
+- **Google Gemini 1.5 Pro** for AI-generering
 
 ### AI Pipeline
 - **Google Gemini 1.5 Pro** for AI-generering
@@ -32,10 +32,9 @@ En SaaS-plattform som gir lærere i norsk skole kvalitetssikret, kildebelagt fag
 ## 🛠️ Installasjon og oppsett
 
 ### Forutsetninger
-- Node.js 18+
+- Node.js 20+
 - Python 3.11+
-- Supabase konto
-- Anthropic API nøkkel
+- [Google Gemini API key](https://makersuite.google.com/app/apikey) (gratis)
 
 ### 1. Klone repository
 ```bash
@@ -102,20 +101,15 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 DATABASE_URL=your-postgres-connection-string
 
 # AI
-GEMINI_API_KEY=your-gemini-api-key
-OPENAI_API_KEY=your-openai-key
+GEMINI_API_KEY=your-gemini-api-key   # required
 
-# Caching
+# Caching (optional locally)
 REDIS_URL=redis://localhost:6379
-
-# External APIs
-SNL_API_KEY=your-snl-api-key
 ```
 
 Frontend (`.env.local`):
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
 ## 🚦 Bruk
