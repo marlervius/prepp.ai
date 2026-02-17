@@ -3,6 +3,7 @@ Application configuration settings
 """
 
 from typing import List
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -14,13 +15,21 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "your-secret-key-here"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
 
-    # CORS
+    # CORS — set via env: CORS_ORIGINS="https://a.com,https://b.com"
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:3001",
         "https://prepp.ai",
         "https://www.prepp.ai",
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors(cls, v):  # type: ignore[override]
+        """Accept comma-separated string from env, e.g. 'https://a.com,https://b.com'"""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
     # Database
     SUPABASE_URL: str = ""
@@ -44,6 +53,9 @@ class Settings(BaseSettings):
     MAX_RAG_CHUNKS: int = 8
     EMBEDDING_MODEL: str = "text-embedding-3-small"
     LLM_MODEL: str = "gemini-1.5-pro"
+
+    # Render
+    RENDER: bool = False  # Render sets RENDER=true automatically
 
     # Development
     DEBUG: bool = False
