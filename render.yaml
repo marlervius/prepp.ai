@@ -36,12 +36,9 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
-      # Redis — reference the Render Redis instance
+      # Redis — set manually from your existing Render Redis instance
       - key: REDIS_URL
-        fromService:
-          name: prepp-ai-redis
-          type: redis
-          property: connectionString
+        sync: false
       # CORS — will be set after frontend URL is known
       - key: CORS_ORIGINS
         sync: false
@@ -73,13 +70,3 @@ services:
       # e.g.  https://prepp-ai-backend.onrender.com
       - key: NEXT_PUBLIC_API_URL
         sync: false
-
-  # ── Redis ──────────────────────────────────────────
-  # Caching layer for API responses and user sessions
-  # Automatically connected to backend via REDIS_URL
-  - type: redis
-    name: prepp-ai-redis
-    region: frankfurt
-    plan: free                 # 25 MB, fine for caching
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []            # only internal access
