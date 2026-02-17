@@ -55,12 +55,10 @@ services:
     region: frankfurt
     plan: free
     envVars:
-      # Backend URL — set to the Render backend URL after first deploy
+      # Backend URL — set manually after first deploy:
+      # https://prepp-ai-backend.onrender.com
       - key: NEXT_PUBLIC_API_URL
-        fromService:
-          name: prepp-ai-backend
-          type: web
-          property: url
+        sync: false
 
   # ── Redis ──────────────────────────────────────────
   - type: redis
