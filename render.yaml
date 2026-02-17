@@ -2,10 +2,17 @@
 # Prepp.ai — Render Blueprint
 # Deploy:  koble repo → Render → "New Blueprint Instance"
 # Docs:    https://docs.render.com/infrastructure-as-code
+#
+# IMPORTANT: Set these environment variables in Render dashboard:
+# - GEMINI_API_KEY: Get from https://makersuite.google.com/app/apikey
+# - SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY (optional)
+# - CORS_ORIGINS: Set after frontend deployment (e.g., https://prepp-ai-frontend.onrender.com)
 # ──────────────────────────────────────────────────────
 
 services:
   # ── Backend (FastAPI) ──────────────────────────────
+  # Handles AI processing with Google Gemini
+  # Health check: GET /api/v1/health
   - type: web
     name: prepp-ai-backend
     runtime: docker
@@ -34,7 +41,7 @@ services:
         fromService:
           name: prepp-ai-redis
           type: redis
-          property: connectionString
+          property: connectionStringUrl
       # CORS — will be set after frontend URL is known
       - key: CORS_ORIGINS
         sync: false
@@ -45,8 +52,14 @@ services:
         value: "false"
       - key: LOG_LEVEL
         value: INFO
+      - key: LLM_MODEL
+        value: gemini-1.5-pro
+      - key: MAX_BRIEF_TOKENS
+        value: "4000"
 
   # ── Frontend (Next.js) ─────────────────────────────
+  # User interface for generating teaching briefs
+  # After deploy: Set NEXT_PUBLIC_API_URL to backend URL
   - type: web
     name: prepp-ai-frontend
     runtime: docker
@@ -61,6 +74,8 @@ services:
         sync: false
 
   # ── Redis ──────────────────────────────────────────
+  # Caching layer for API responses and user sessions
+  # Automatically connected to backend via REDIS_URL
   - type: redis
     name: prepp-ai-redis
     region: frankfurt
