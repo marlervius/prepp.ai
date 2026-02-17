@@ -1,0 +1,23 @@
+# Backend Dockerfile for Render
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY ./prepp-ai-backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY ./prepp-ai-backend/app/ ./app/
+COPY ./prepp-ai-backend/scripts/ ./scripts/
+
+# Expose port (Render will set PORT environment variable)
+EXPOSE $PORT
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD python -c "import requests; requests.get(f'http://localhost:${PORT}/api/v1/health')"
+
+# Start application
+CMD python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT

@@ -9,8 +9,8 @@ services:
   - type: web
     name: prepp-ai-backend
     runtime: docker
-    dockerfilePath: ./prepp-ai-backend/Dockerfile
-    dockerContext: ./prepp-ai-backend
+    dockerfilePath: ./Dockerfile.backend
+    dockerContext: .
     region: frankfurt          # Closest to Norway
     plan: free                 # Change to "starter" for always-on
     healthCheckPath: /api/v1/health
@@ -50,8 +50,8 @@ services:
   - type: web
     name: prepp-ai-frontend
     runtime: docker
-    dockerfilePath: ./prepp-ai-app/Dockerfile
-    dockerContext: ./prepp-ai-app
+    dockerfilePath: ./Dockerfile.frontend
+    dockerContext: .
     region: frankfurt
     plan: free
     envVars:
