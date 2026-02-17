@@ -6,7 +6,7 @@ En SaaS-plattform som gir lærere i norsk skole kvalitetssikret, kildebelagt fag
 
 - **Strukturerte lærermanualer**: Få komplette undervisningsbriefer med LK20-kobling, faglig dybde, pedagogiske tips og elevspørsmål
 - **Kildebelagt innhold**: Basert på verifiserte norske kilder (SNL, NDLA, Udir)
-- **AI-drevet**: Bruker Claude Sonnet for høykvalitets, kontekstbevisst generering
+- **AI-drevet**: Bruker Google Gemini 1.5 Pro for høykvalitets, kontekstbevisst generering
 - **RAG-arkitektur**: Retrieval-Augmented Generation sikrer faktabasert innhold
 - **Responsivt design**: Fungerer på desktop og mobil
 
@@ -24,9 +24,10 @@ En SaaS-plattform som gir lærere i norsk skole kvalitetssikret, kildebelagt fag
 - **Claude/Anthropic** for AI-generering
 
 ### AI Pipeline
+- **Google Gemini 1.5 Pro** for AI-generering
 - **Single-agent arkitektur** (MVP) med strukturert prompt
-- **RAG** mot norske kilder
-- **pgvector** for vektorsøk
+- **RAG** mot norske kilder (planlagt)
+- **pgvector** for vektorsøk (planlagt)
 
 ## 🛠️ Installasjon og oppsett
 
@@ -101,7 +102,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 DATABASE_URL=your-postgres-connection-string
 
 # AI
-ANTHROPIC_API_KEY=your-anthropic-key
+GEMINI_API_KEY=your-gemini-api-key
 OPENAI_API_KEY=your-openai-key
 
 # Caching
@@ -190,6 +191,10 @@ npm test
 - Mobilapp med flashcards
 - Feide SSO-integrasjon
 - Skolelisenser
+
+## 🚀 Deployment
+
+For production deployment til Render og Vercel, se [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## 🤝 Bidrag
 

@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     # AI Providers
     OPENAI_API_KEY: str = ""
-    ANTHROPIC_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     MAX_BRIEF_TOKENS: int = 4000
     MAX_RAG_CHUNKS: int = 8
     EMBEDDING_MODEL: str = "text-embedding-3-small"
-    LLM_MODEL: str = "claude-3-5-sonnet-20241022"
+    LLM_MODEL: str = "gemini-1.5-pro"
 
     # Development
     DEBUG: bool = False

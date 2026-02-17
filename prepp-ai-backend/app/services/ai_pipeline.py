@@ -6,7 +6,7 @@ Handles structured brief generation using LLM with RAG context
 import json
 from typing import Dict, Any, List
 import structlog
-from anthropic import AsyncAnthropic
+import google.generativeai as genai
 
 from app.core.config import settings
 
@@ -15,16 +15,18 @@ logger = structlog.get_logger(__name__)
 class AIPipeline:
     """AI Pipeline for generating structured teaching briefs"""
 
-    _client: AsyncAnthropic | None = None
+    _model: genai.GenerativeModel | None = None
 
     def __init__(self):
-        self.model = settings.LLM_MODEL
+        self.model_name = settings.LLM_MODEL
+        # Configure Gemini API
+        genai.configure(api_key=settings.GEMINI_API_KEY)
 
     @property
-    def client(self) -> AsyncAnthropic:
-        if AIPipeline._client is None:
-            AIPipeline._client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
-        return AIPipeline._client
+    def model(self) -> genai.GenerativeModel:
+        if AIPipeline._model is None:
+            AIPipeline._model = genai.GenerativeModel(self.model_name)
+        return AIPipeline._model
 
     async def generate_brief(
         self,
@@ -98,19 +100,24 @@ Ingen tilleggstekst, bare gyldig JSON."""
 - Tema: {topic}"""
 
         try:
-            # Call Claude API
-            response = await self.client.messages.create(
-                model=self.model,
-                max_tokens=settings.MAX_BRIEF_TOKENS,
+            # Configure generation parameters
+            generation_config = genai.GenerationConfig(
                 temperature=0.1,  # Low temperature for consistent, factual output
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": user_prompt}
-                ]
+                max_output_tokens=settings.MAX_BRIEF_TOKENS,
+                response_mime_type="application/json"
+            )
+
+            # Create model with system prompt as part of the prompt
+            full_prompt = f"{system_prompt}\n\n{user_prompt}"
+
+            # Call Gemini API
+            response = await self.model.generate_content_async(
+                full_prompt,
+                generation_config=generation_config
             )
 
             # Extract and parse JSON response
-            content = response.content[0].text.strip()
+            content = response.text.strip()
 
             # Remove potential markdown code blocks
             if content.startswith("```json"):
@@ -133,7 +140,7 @@ Ingen tilleggstekst, bare gyldig JSON."""
                 subject=subject,
                 grade=grade,
                 topic=topic,
-                tokens_used=response.usage.input_tokens + response.usage.output_tokens,
+                # Note: Gemini doesn't provide detailed token usage in the same way
             )
 
             return brief_data
